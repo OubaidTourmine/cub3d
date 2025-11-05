@@ -42,26 +42,48 @@ int can_move_to(t_game *game, float px, float py)
  
 void calculate_next_position(t_game *game, t_player *player, int keysym)
 {
-    float next_px;
-    float next_py;
-    // int xd;
+    double dx = 0.0;
+    double dy = 0.0;
+    double step = (double)player->speed;
 
-    next_px = player->px;
-    next_py = player->py;
-    // xd = get_direction(game);
+    // Camera-relative movement
     if (keysym == XK_w || keysym == XK_W)
-        next_py -= player->speed;
-    else if (keysym == XK_s || keysym == XK_S)
-        next_py += player->speed;
-    else if (keysym == XK_a || keysym == XK_A)
-        next_px -= player->speed;
-    else if (keysym == XK_d || keysym == XK_D)
-        next_px += player->speed;
-    if (can_move_to(game, next_px, next_py))
     {
-        player->px = next_px;
-        player->py = next_py;
+        dx = game->player.dirX;
+        dy = game->player.dirY;
     }
+    else if (keysym == XK_s || keysym == XK_S)
+    {
+        dx = -game->player.dirX;
+        dy = -game->player.dirY;
+    }
+    else if (keysym == XK_a || keysym == XK_A)
+    {
+        dx = -game->camera.planeX;
+        dy = -game->camera.planeY;
+    }
+    else if (keysym == XK_d || keysym == XK_D)
+    {
+        dx = game->camera.planeX;
+        dy = game->camera.planeY;
+    }
+
+    // Normalize to keep speed consistent regardless of FOV
+    double mag = sqrt(dx * dx + dy * dy);
+    if (mag > 0.000001)
+    {
+        dx /= mag;
+        dy /= mag;
+    }
+
+    // Attempt axis-separated movement to slide along walls
+    double try_px = player->px + dx * step;
+    double try_py = player->py + dy * step;
+
+    if (can_move_to(game, try_px, player->py))
+        player->px = try_px;
+    if (can_move_to(game, player->px, try_py))
+        player->py = try_py;
 }
 
 void clear_window(t_game *game)

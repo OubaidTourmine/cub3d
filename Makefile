@@ -13,8 +13,9 @@
 
 NAME = cub3d
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I../minilibx_mms_20191025_beta
-LDFLAGS = -L../minilibx_mms_20191025_beta -lmlx -lX11 -lXext -lm
+# Use the bundled MiniLibX in the project directory
+CFLAGS = -Wall -Wextra -Werror -I./minilibx-linux
+LDFLAGS = -L./minilibx-linux -lmlx -lX11 -lXext -lm
 SRC = main.c\
 	draw_map.c\
 	get_next_line/get_next_line_utils.c\
@@ -22,13 +23,15 @@ SRC = main.c\
 	helper_functions.c\
 	keys_handler.c\
 	movements.c\
+	camera.c\
 	raycasting.c\
 	map_parsing.c\
 	map_validation.c\
 	map_info.c\
 	utils/utils.c\
 	utils/ft_strtrim.c\
-	utils/ft_itoa.c
+	utils/ft_itoa.c\
+	init_rays.c
 	
 OBJS = ${SRC:.c=.o}
 

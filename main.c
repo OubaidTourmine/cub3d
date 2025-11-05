@@ -26,6 +26,9 @@ void init_game(t_game *game)
 void transfer_parsed_data_to_game(t_game *game, s_cub_info *info)
 {
     int i;
+    double planeLen;
+    const double PI = 3.14159265358979323846;
+    planeLen = tan((FOV * (PI / 180.0)) / 2.0);
     
     game->arena = info->map;
     
@@ -34,21 +37,22 @@ void transfer_parsed_data_to_game(t_game *game, s_cub_info *info)
         i++;
     game->arena_size = i;
     
-    game->player.px = info->player->x * tile_size;
-    game->player.py = info->player->y * tile_size;
+    // Place player at the center of the starting tile to avoid DDA zero-distance artifacts
+    game->player.px = (info->player->x + 0.5f) * tile_size;
+    game->player.py = (info->player->y + 0.5f) * tile_size;
     
     if (info->player->f == 'N')
     {
         game->player.dirX = 0;
         game->player.dirY = -1;
-        game->camera.planeX = 0.6;
+        game->camera.planeX = planeLen;
         game->camera.planeY = 0;
     }
     else if (info->player->f == 'S')
     {
         game->player.dirX = 0;
         game->player.dirY = 1;
-        game->camera.planeX = -0.6;
+        game->camera.planeX = -planeLen;
         game->camera.planeY = 0;
     }
     else if (info->player->f == 'E')
@@ -56,14 +60,14 @@ void transfer_parsed_data_to_game(t_game *game, s_cub_info *info)
         game->player.dirX = 1;
         game->player.dirY = 0;
         game->camera.planeX = 0;
-        game->camera.planeY = 0.6;
+        game->camera.planeY = planeLen;
     }
     else if (info->player->f == 'W')
     {
         game->player.dirX = -1;
         game->player.dirY = 0;
         game->camera.planeX = 0;
-        game->camera.planeY = -0.6;
+        game->camera.planeY = -planeLen;
     }
 }
 
