@@ -1,0 +1,99 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map_parsing1.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/10/18 15:44:08 by outourmi          #+#    #+#             */
+/*   Updated: 2025/12/12 17:34:27 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "cub3d.h"
+
+int	is_identifier_line(char *line)
+{
+	if (!line)
+		return (0);
+	while (*line == ' ' || *line == '\t')
+		line++;
+	if (ft_strncmp(line, "NO", 2) == 0 && (line[2] == ' ' || line[2] == '\t'))
+		return (1);
+	if (ft_strncmp(line, "SO", 2) == 0 && (line[2] == ' ' || line[2] == '\t'))
+		return (1);
+	if (ft_strncmp(line, "WE", 2) == 0 && (line[2] == ' ' || line[2] == '\t'))
+		return (1);
+	if (ft_strncmp(line, "EA", 2) == 0 && (line[2] == ' ' || line[2] == '\t'))
+		return (1);
+	if (ft_strncmp(line, "F", 1) == 0 && (line[1] == ' ' || line[1] == '\t'))
+		return (1);
+	if (ft_strncmp(line, "C", 1) == 0 && (line[1] == ' ' || line[1] == '\t'))
+		return (1);
+	return (0);
+}
+
+int	is_empty_line(char *line)
+{
+	if (!line)
+		return (1);
+	while (*line)
+	{
+		if (*line != ' ' && *line != '\t' && *line != '\n' && *line != '\r')
+			return (0);
+		line++;
+	}
+	return (1);
+}
+
+void	check_map(char **map)
+{
+	int	i;
+	int	count;
+	int	j;
+
+	i = 0;
+	count = 0;
+	while (map[i])
+	{
+		j = 0;
+		while (map[i][j] && map[i][j] != '\n')
+		{
+			if (map[i][j] != 'N' && map[i][j] != 'S' && map[i][j] != 'E'
+				&& map[i][j] != 'W' && map[i][j] != '1' && map[i][j] != '0'
+				&& map[i][j] != ' ' && map[i][j] != '\t')
+				count++;
+			j++;
+		}
+		i++;
+	}
+	if (count != 0)
+		exit(printf("invalid map\n"));
+}
+
+int	map_parsing(t_cub_info *info)
+{
+	int		map_start;
+	char	**map_only;
+	char	**all_lines;
+	int		i;
+
+	map_start = 0;
+	all_lines = info->map;
+	map_only = extract_map(all_lines, &map_start);
+	if (!map_only)
+		return (1);
+	process_inside_spaces(map_only, 0, 0);
+	check_map(map_only);
+	check_player(map_only, info);
+	i = 0;
+	while (all_lines[i])
+	{
+		if (is_identifier_line(all_lines[i]) || is_empty_line(all_lines[i]))
+			free(all_lines[i]);
+		i++;
+	}
+	free(all_lines);
+	info->map = map_only;
+	return (0);
+}
